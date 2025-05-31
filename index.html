@@ -5,18 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Rózsafüzér</title>
 <style>
-  :root{--bg:#f3f3f3;--text:#111;--bead:#bbb;--bead-active:#6a3;--rosary-size:260px;}
-  body.dark{--bg:#111;--text:#eee;--bead:#555;--bead-active:#9f6;}
+  :root{--bg:#f3f3f3;--text:#111;--bead:#bbb;--bead-active:#6a3;--bead-large:#888;--rosary-size:260px;}
+  body.dark{--bg:#111;--text:#eee;--bead:#555;--bead-active:#9f6;--bead-large:#aaa;}
   body{margin:0;font-family:"Times New Roman",Times,serif;background:var(--bg);color:var(--text);display:flex;justify-content:center;align-items:center;height:100vh;text-align:center;padding:2rem;line-height:1.4;user-select:none;touch-action:manipulation;transition:background .3s,color .3s;}
   #prayer{white-space:pre-line;font-size:1.25rem;max-width:600px;}
   #modeToggle{position:fixed;left:1rem;top:1rem;font-size:1.8rem;background:none;border:none;cursor:pointer;color:var(--text);z-index:2;}
-  #rosary{position:fixed;right:1rem;top:1rem;width:var(--rosary-size);height:var(--rosary-size);pointer-events:none;}
-  .bead{position:absolute;left:50%;top:50%;width:10px;height:10px;border-radius:50%;background:var(--bead);transform-origin:center center;transition:background .3s;}
-  .bead.active{background:var(--bead-active);}
+  #rosary{position:fixed;right:1rem;top:1rem;width:var(--rosary-size);height:calc(var(--rosary-size)+120px);pointer-events:none;transition:transform .3s;}
+  .bead{position:absolute;width:10px;height:10px;border-radius:50%;background:var(--bead);transition:background .3s;}
+  .bead.large{width:14px;height:14px;background:var(--bead-large);}
+  .bead.active{background:var(--bead-active)!important;}
+  /* Mobile: horizontal rosary and adjusted text */  
   @media(max-width:600px){
     :root{--rosary-size:180px;}
-    #rosary{left:50%;right:auto;top:auto;bottom:1rem;transform:translateX(-50%);}
-    #prayer{font-size:1.1rem;max-width:90%;padding-bottom:calc(var(--rosary-size) + 2rem);}
+    #rosary{left:50%;right:auto;top:auto;bottom:1rem;transform:translateX(-50%) rotate(90deg);} /* fektetve */
+    #prayer{font-size:1.1rem;max-width:90%;padding-bottom:calc(var(--rosary-size)+140px);}
   }
 </style>
 </head>
@@ -25,6 +27,7 @@
 <div id="rosary"></div>
 <div id="prayer"></div>
 <script>
+/* --------- Full prayer texts --------- */
 const CROSS='† Az Atya, a Fiú és a Szentlélek nevében. Ámen.';
 const CREDO=`Hiszek egy Istenben, mindenható Atyában, mennynek és földnek Teremtőjében.
 És Jézus Krisztusban, az Ő egyszülött Fiában, a mi Urunkban,
@@ -74,13 +77,35 @@ megszerezte nekünk az örök üdvösség jutalmát,
 add, kérünk, hogy e szent Rózsafüzér titkait tisztelve
 kövessük, amit tanítanak, és elnyerjük, amit ígérnek.
 Krisztus, a mi Urunk által. Ámen.`;
-const M={joy:["akit Te, Szent Szűz, a Szentlélektől fogantál","akit Te, Szent Szűz, Erzsébetet látogatván hordoztál","akit Te, Szent Szűz, a világra szültél","akit Te, Szent Szűz, a templomban bemutattál","akit Te, Szent Szűz, a templomban megtaláltál"],sor:["aki értünk vérrel verítékezett","akit értünk megostoroztak","akit értünk tövissel megkoronáztak","aki értünk a keresztet hordozta","akit értünk keresztre feszítettek"],lum:["aki a Jordán vizében megkeresztelkedett","aki a kánai menyegzőn kinyilvánította isteni erejét","aki meghirdette Isten országát","aki a Tábor hegyén megmutatta isteni dicsőségét","aki az Eucharisztiát nekünk adta"],glo:["aki a halálból feltámadt","aki a mennybe felment","aki nekünk a Szentlelket elküldte","aki Téged, Szent Szűz, a mennybe felvett","aki Téged, Szent Szűz, a mennyben megkoronázott"]};
+/* --------- Mysteries --------- */
+const M={joy:['akit Te, Szent Szűz, a Szentlélektől fogantál','akit Te, Szent Szűz, Erzsébetet látogatván hordoztál','akit Te, Szent Szűz, a világra szültél','akit Te, Szent Szűz, a templomban bemutattál','akit Te, Szent Szűz, a templomban megtaláltál'],
+sor:['aki értünk vérrel verítékezett','akit értünk megostoroztak','akit értünk tövissel megkoronáztak','aki értünk a keresztet hordozta','akit értünk keresztre feszítettek'],
+lum:['aki a Jordán vizében megkeresztelkedett','aki a kánai menyegzőn kinyilvánította isteni erejét','aki meghirdette Isten országát','aki a Tábor hegyén megmutatta isteni dicsőségét','aki az Eucharisztiát nekünk adta'],
+glo:['aki a halálból feltámadt','aki a mennybe felment','aki nekünk a Szentlelket elküldte','aki Téged, Szent Szűz, a mennybe felvett','aki Téged, Szent Szűz, a mennyben megkoronázott']};
 function daySet(){return[M.glo,M.joy,M.sor,M.glo,M.lum,M.sor,M.joy][new Date().getDay()];}
-function build(){const s=[],t=daySet();s.push(CROSS,CREDO,OUR_FATHER);for(let i=0;i<3;i++)s.push(HAIL());s.push(GLORY);for(let d=0;d<5;d++){s.push(OUR_FATHER);for(let i=0;i<10;i++)s.push(HAIL(t[d]));s.push(GLORY,FATIMA);}s.push(SALVE,CLOSING,CROSS);return s;}
+/* --------- Build sequence --------- */
+function build(){const s=[],t=daySet();s.push(CROSS,CREDO,OUR_FATHER);for(let i=0;i<3;i++)s.push(HAIL());s.push(GLORY);
+ for(let d=0;d<5;d++){s.push(OUR_FATHER);for(let i=0;i<10;i++)s.push(HAIL(t[d]));s.push(GLORY,FATIMA);}s.push(SALVE,CLOSING,CROSS);return s;}
 let prayers=build(),idx=0;
-const out=document.getElementById('prayer'),ros=document.getElementById('rosary'),toggle=document.getElementById('modeToggle');
-function drawRosary(){ros.innerHTML='';const N=60,r=ros.offsetWidth/2-5;for(let i=0;i<N;i++){const b=document.createElement('div');b.className='bead';const a=360/N*i;b.style.transform=`rotate(${a}deg) translate(${r}px) rotate(-${a}deg)`;ros.appendChild(b);}}
-function updRos(){document.querySelectorAll('.bead').forEach((b,i)=>b.classList.toggle('active',i<Math.floor(idx/prayers.length*60)));}
+/* --------- Rosary drawing --------- */
+const ros=document.getElementById('rosary');
+function drawRosary(){
+  ros.innerHTML='';
+  const loop=54, tail=6, R=ros.offsetWidth/2-10;
+  const gap=70,start=90+gap/2;
+  for(let i=0;i<loop;i++){
+    const ang=start+(360-gap)*i/loop;
+    placeBead(i, R*Math.cos(ang*Math.PI/180)+ros.offsetWidth/2, R*Math.sin(ang*Math.PI/180)+R+10, i%11===0);
+  }
+  const baseY=R*2+10;
+  for(let j=0;j<tail;j++){
+    placeBead(loop+j, ros.offsetWidth/2, baseY+20*j, j===0);
+  }
+}
+function placeBead(order,x,y,large){const b=document.createElement('div');b.className='bead'+(large?' large':'');b.style.left=x+'px';b.style.top=y+'px';ros.appendChild(b);}
+function updRos(){const beads=[...ros.children],done=Math.floor(idx/prayers.length*beads.length);beads.forEach((b,i)=>b.classList.toggle('active',i<done));}
+/* --------- Display --------- */
+const out=document.getElementById('prayer'),toggle=document.getElementById('modeToggle');
 function show(){out.textContent=prayers[idx];updRos();}
 document.body.addEventListener('click',e=>{if(e.target!==toggle){idx=(idx+1)%prayers.length;show();}});
 toggle.addEventListener('click',e=>{e.stopPropagation();const d=document.body.classList.toggle('dark');toggle.textContent=d?'☀️':'🌙';localStorage.setItem('dark',d);});
