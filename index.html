@@ -13,7 +13,6 @@
   #rosary{position:fixed;right:1rem;top:1rem;width:var(--rosary-size);height:var(--rosary-size);pointer-events:none;}
   .bead{position:absolute;left:50%;top:50%;width:10px;height:10px;border-radius:50%;background:var(--bead);transform-origin:center center;transition:background .3s;}
   .bead.active{background:var(--bead-active);}  
-  /* -------- Mobil optimalizálás -------- */
   @media(max-width:600px){
     :root{--rosary-size:180px;}
     #rosary{left:50%;right:auto;top:auto;bottom:1rem;transform:translateX(-50%);}  /* középre alul */
@@ -26,34 +25,87 @@
 <div id="rosary"></div>
 <div id="prayer"></div>
 <script>
-// ===== Szövegek (rövidítve) =====
-const CROSS="† Az Atya, a Fiú és a Szentlélek nevében. Ámen.";
-const CREDO=`Hiszek egy Istenben, mindenható Atyában... Ámen.`; // rövidítve itt a példában
-const OUR_FATHER=`Miatyánk... Ámen.`;
-const HAIL=ins=>`Üdvözlégy, Mária... Jézus${ins?", "+ins:""}. ... Ámen.`;
-const GLORY="Dicsőség... Ámen.";
-const FATIMA="Ó, Jézusom... Ámen.";
-const SALVE="Üdvözlégy, Királynő...";
-const CLOSING="Istenünk... Ámen.";
-// Titkok teljes listája
-const M={joy:["akit Te, Szent Szűz, a Szentlélektől fogantál","akit Te, Szent Szűz, Erzsébetet látogatván hordoztál","akit Te, Szent Szűz, a világra szültél","akit Te, Szent Szűz, a templomban bemutattál","akit Te, Szent Szűz, a templomban megtaláltál"],
-  sor:["aki értünk vérrel verítékezett","akit értünk megostoroztak","akit értünk tövissel megkoronáztak","aki értünk a keresztet hordozta","akit értünk keresztre feszítettek"],
-  lum:["aki a Jordán vizében megkeresztelkedett","aki a kánai menyegzőn kinyilvánította isteni erejét","aki meghirdette Isten országát","aki a Tábor hegyén megmutatta isteni dicsőségét","aki az Eucharisztiát nekünk adta"],
-  glo:["aki a halálból feltámadt","aki a mennybe felment","aki nekünk a Szentlelket elküldte","aki Téged, Szent Szűz, a mennybe felvett","aki Téged, Szent Szűz, a mennyben megkoronázott"]};
+// ===== TELJES SZÖVEGEK =====
+const CROSS = "† Az Atya, a Fiú és a Szentlélek nevében. Ámen.";
+const CREDO = `Hiszek egy Istenben, mindenható Atyában, mennynek és földnek Teremtőjében.
+És Jézus Krisztusban, az Ő egyszülött Fiában, a mi Urunkban,
+aki fogantatott Szentlélektől, született Szűz Máriától,
+szenvedett Poncius Pilátus alatt, megfeszítették, meghalt és eltemették;
+alászállt a poklokra, harmadnapon feltámadt a halottak közül;
+fölment a mennybe, ott ül a mindenható Atyaisten jobbján,
+onnan jön el ítélni élőket és holtakat.
+Hiszek Szentlélekben,
+hiszem a katolikus Anyaszentegyházat,
+a szentek közösségét, a bűnök bocsánatát,
+a test feltámadását és az örök életet. Ámen.`;
+const OUR_FATHER = `Miatyánk, aki a mennyekben vagy,
+szenteltessék meg a Te neved;
+jöjjön el a Te országod;
+legyen meg a Te akaratod, amint a mennyben, úgy a földön is.
+Mindennapi kenyerünket add meg nekünk ma;
+és bocsásd meg vétkeinket,
+miképpen mi is megbocsátunk az ellenünk vétkezőknek;
+és ne vígy minket kísértésbe,
+de szabadíts meg a gonosztól. Ámen.`;
+const HAIL = ins => `Üdvözlégy, Mária, kegyelemmel teljes,
+az Úr van Teveled;
+áldott vagy Te az asszonyok között,
+és áldott a Te méhednek gyümölcse, Jézus${ins ? ", " + ins : ""}.
+Asszonyunk Szűz Mária, Istennek Szent Anyja,
+imádkozzál érettünk, bűnösökért,
+most és halálunk óráján. Ámen.`;
+const GLORY = `Dicsőség az Atyának, a Fiúnak és a Szentléleknek,
+miképpen kezdetben, most és mindörökké. Ámen.`;
+const FATIMA = `Ó, Jézusom, bocsásd meg bűneinket,
+ments meg minket a pokol tüzétől,
+vidd a mennybe a lelkeket,
+különösen azokat, akik
+leginkább rászorulnak irgalmadra. Ámen.`;
+const SALVE = `Üdvözlégy, Királynő, irgalmasság Anyja!
+Életünk, édességünk és reménységünk, üdvözlégy!
+Hozzád kiáltunk, Éva számkivetett fiai;
+hozzád sóhajtozunk sírván és zokogván e siralom völgyéből.
+Fordítsd ránk tehát, szószólónk, irgalmas szemeidet;
+és Jézust, a Te méhednek áldott gyümölcsét
+mutasd meg nekünk e számkivetés után,
+ó kegyes, ó irgalmas, ó édes Szűz Mária!
+Imádkozzál érettünk, Istennek szent Anyja,
+hogy méltók lehessünk Krisztus ígéreteire! Ámen.`;
+const CLOSING = `Istenünk, ki egyszülött Fiad életével, halálával és feltámadásával
+megszerezte nekünk az örök üdvösség jutalmát,
+add, kérünk, hogy e szent Rózsafüzér titkait tisztelve
+kövessük, amit tanítanak, és elnyerjük, amit ígérnek.
+Krisztus, a mi Urunk által. Ámen.`;
+// ===== Titkok =====
+const M = {
+  joy:[
+    "akit Te, Szent Szűz, a Szentlélektől fogantál",
+    "akit Te, Szent Szűz, Erzsébetet látogatván hordoztál",
+    "akit Te, Szent Szűz, a világra szültél",
+    "akit Te, Szent Szűz, a templomban bemutattál",
+    "akit Te, Szent Szűz, a templomban megtaláltál"],
+  sor:[
+    "aki értünk vérrel verítékezett",
+    "akit értünk megostoroztak",
+    "akit értünk tövissel megkoronáztak",
+    "aki értünk a keresztet hordozta",
+    "akit értünk keresztre feszítettek"],
+  lum:[
+    "aki a Jordán vizében megkeresztelkedett",
+    "aki a kánai menyegzőn kinyilvánította isteni erejét",
+    "aki meghirdette Isten országát",
+    "aki a Tábor hegyén megmutatta isteni dicsőségét",
+    "aki az Eucharisztiát nekünk adta"],
+  glo:[
+    "aki a halálból feltámadt",
+    "aki a mennybe felment",
+    "aki nekünk a Szentlelket elküldte",
+    "aki Téged, Szent Szűz, a mennybe felvett",
+    "aki Téged, Szent Szűz, a mennyben megkoronázott"]};
 function daySet(){return[ M.glo,M.joy,M.sor,M.glo,M.lum,M.sor,M.joy][new Date().getDay()]}
-// Ima-sorozat összeállítása
+// ===== Ima-sorozat =====
 function build(){const s=[],t=daySet();s.push(CROSS,CREDO,OUR_FATHER);for(let i=0;i<3;i++)s.push(HAIL());s.push(GLORY);
  for(let d=0;d<5;d++){s.push(OUR_FATHER);for(let i=0;i<10;i++)s.push(HAIL(t[d]));s.push(GLORY,FATIMA);}s.push(SALVE,CLOSING,CROSS);return s;}
 let prayers=build(),idx=0;
-// Rózsafüzér rajzolása rugalmas sugárral
-const ros=document.getElementById("rosary");const B=60,radius=ros.offsetWidth/2-5;for(let i=0;i<B;i++){const b=document.createElement("div");b.className="bead";const a=360/B*i;b.style.transform=`rotate(${a}deg) translate(${radius}px) rotate(-${a}deg)`;ros.appendChild(b);}function updRos(){document.querySelectorAll(".bead").forEach((b,i)=>b.classList.toggle("active",i<Math.floor(idx/prayers.length*B)));}
-// Megjelenítés
-const out=document.getElementById("prayer");function show(){out.textContent=prayers[idx];updRos();}
-// kattintás léptet
-const modeBtn=document.getElementById("modeToggle");document.body.addEventListener("click",e=>{if(e.target!==modeBtn){idx=(idx+1)%prayers.length;show();}});
-// téma váltás
-modeBtn.addEventListener("click",e=>{e.stopPropagation();const dark=document.body.classList.toggle("dark");modeBtn.textContent=dark?"☀️":"🌙";localStorage.setItem("dark",dark);} );if(localStorage.getItem("dark")==="true")document.body.classList.add("dark");
-show();
-</script>
-</body>
-</html>
+// ===== Rózsafüzér rajz =====
+const ros=document.getElementById("rosary");function drawRosary(){ros.innerHTML="";const B=60,r=ros.offsetWidth/2-5;for(let i
