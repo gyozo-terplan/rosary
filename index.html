@@ -6,69 +6,59 @@
 <title>Rózsafüzér</title>
 
 <style>
-  :root{
-    --bg:#f3f3f3; --text:#111;
-    --bead:#bbb;   --bead-active:#6a3; --bead-large:#888;
-    --rosary-size:260px;
-  }
-  body.dark{
-    --bg:#111; --text:#eee;
-    --bead:#555; --bead-active:#9f6; --bead-large:#aaa;
-  }
+:root{
+  --bg:#f3f3f3; --text:#111;
+  --bead:#bbb;   --bead-active:#6a3; --bead-large:#888;
+  --rosary-size:260px;                /* desktop átmérő */
+}
+body.dark{
+  --bg:#111; --text:#eee;
+  --bead:#555; --bead-active:#9f6; --bead-large:#aaa;
+}
 
-  /* -------- Alap elrendezés -------- */
-  body{
-    margin:0; overflow:hidden;
-    font-family:"Times New Roman",Times,serif;
-    background:var(--bg); color:var(--text);
-    display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
-    height:100vh; padding:2rem 1rem;
-    text-align:center; line-height:1.4;
-    user-select:none; touch-action:manipulation;
-    transition:background .3s,color .3s;
-  }
-  #modeToggle{
-    position:fixed; left:.5rem; top:.5rem;
-    font-size:1.9rem; background:none; border:none;
-    cursor:pointer; color:var(--text); z-index:3;
-  }
-  #prayer{
-    white-space:pre-line;
-    font-size:1.25rem;
-    max-width:600px;
-    z-index:2;
-  }
-  #rosary{
-    position:fixed;
-    left:0; right:0; margin:auto;
-    bottom:.5rem;
-    width:var(--rosary-size);
-    height:calc(var(--rosary-size) + 120px);
-    pointer-events:none;
-    z-index:1;
-  }
-  .bead{
-    position:absolute;
-    width:10px; height:10px;
-    border-radius:50%;
-    background:var(--bead);
-    transition:background .3s;
-  }
-  .bead.large{width:14px; height:14px; background:var(--bead-large);}
-  .bead.active{background:var(--bead-active)!important;}
+/* -------- Alap elrendezés -------- */
+body{
+  margin:0; overflow:hidden;
+  font-family:"Times New Roman",Times,serif;
+  background:var(--bg); color:var(--text);
+  display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
+  height:100vh; padding:2rem 1rem; text-align:center; line-height:1.4;
+  user-select:none; touch-action:manipulation;
+}
+#modeToggle{
+  position:fixed; left:.5rem; top:.5rem;
+  font-size:1.9rem; background:none; border:none;
+  cursor:pointer; color:var(--text); z-index:3;
+}
+#prayer{
+  white-space:pre-line;
+  font-size:1.25rem;
+  max-width:600px;
+  z-index:2;
+}
+#rosary{
+  position:fixed; left:50%; bottom:.75rem;
+  transform:translateX(-50%);
+  width:var(--rosary-size);
+  height:calc(var(--rosary-size) + 120px);
+  pointer-events:none;
+  z-index:1;
+}
+.bead{position:absolute;width:10px;height:10px;border-radius:50%;background:var(--bead);}
+.bead.large{width:14px;height:14px;background:var(--bead-large);}
+.bead.active{background:var(--bead-active)!important;}
 
-  /* -------- Mobil igazítás -------- */
-  @media(max-width:600px){
-    :root{ --rosary-size:150px; }
-    #prayer{
-      font-size:1.05rem;
-      max-width:100%;
-      padding-bottom:calc(var(--rosary-size) + 140px);
-    }
-    #rosary{
-      transform:rotate(90deg);            /* fektetve   */
-    }
-  }
+@media(max-width:600px){
+  :root{ --rosary-size:150px; }
+  #prayer{font-size:1.05rem;max-width:100%;padding-bottom:calc(var(--rosary-size)+140px);}
+  #rosary{transform:translateX(-50%) rotate(90deg);}
+}
+
+@media(max-height:600px){
+  :root{ --rosary-size:150px; }
+  #prayer{font-size:1.05rem;max-width:100%;padding-bottom:calc(var(--rosary-size)+140px);}
+  #rosary{transform:translateX(-50%) rotate(90deg);}
+}
 </style>
 </head>
 
@@ -132,6 +122,7 @@ megszerezte nekünk az örök üdvösség jutalmát,
 add, kérünk, hogy e szent Rózsafüzér titkait tisztelve
 kövessük, amit tanítanak, és elnyerjük, amit ígérnek.
 Krisztus, a mi Urunk által. Ámen.`;
+
 /* -------- Titkok -------- */
 const Myst = {
   joy: [
@@ -163,76 +154,119 @@ const Myst = {
     "aki Téged, Szent Szűz, a mennyben megkoronázott"
   ]
 };
-function todaySet(){
-  return [Myst.glo, Myst.joy, Myst.sor, Myst.glo, Myst.lum, Myst.sor, Myst.joy][new Date().getDay()];
-}
+const todaySet = () => [Myst.glo,Myst.joy,Myst.sor,Myst.glo,Myst.lum,Myst.sor,Myst.joy][new Date().getDay()];
 
-/* -------- Ima-szekvencia -------- */
+/* -------- Ima-sorozat -------- */
 function buildSeq(){
-  const s = [], T = todaySet();
-  s.push(CROSS, CREDO, OUR_FATHER);
-  for (let i = 0; i < 3; i++) s.push(HAIL());
+  const s=[],T=todaySet();
+  s.push(CROSS,CREDO,OUR_FATHER);
+  for(let i=0;i<3;i++)s.push(HAIL());
   s.push(GLORY);
-  for (let d = 0; d < 5; d++) {
+  for(let d=0;d<5;d++){
     s.push(OUR_FATHER);
-    for (let i = 0; i < 10; i++) s.push(HAIL(T[d]));
-    s.push(GLORY, FATIMA);
+    for(let i=0;i<10;i++)s.push(HAIL(T[d]));
+    s.push(GLORY,FATIMA);
   }
-  s.push(SALVE, CLOSING, CROSS);
+  s.push(SALVE,CLOSING,CROSS);
   return s;
 }
-let prayers = buildSeq(), idx = 0;
+let prayers=buildSeq(),idx=0;
 
-/* -------- Rózsafüzér rajzolás -------- */
+/* -------- Titok-kezdő index -------- */
+const startIdx = prayers.findIndex(p =>
+  p.startsWith("Üdvözlégy") && p.includes("akit")
+);
+
+/* -------- ÚJ play-order --------
+   6 függőleges gyöngy (crucifix fölött), majd óramutató-járás szerint jobbra indulva */
+const vertical   = [0,1,2,3,4,5];               // alulról fölfelé
+const base = [...Array(54).keys()].map(i => 6 + i).reverse();  // 59 … 6
+const rightmost = 59;                          // ez a tényleges keleti gyöngy
+const shift = base.indexOf(rightmost);         // 8
+const clockwise = base.slice(shift).concat(base.slice(0, shift));
+const playOrder  = [...vertical, ...clockwise];
+
+/* prayer → bead hozzárendelés   (CROSS, Dicsőség, Fatima = nincs új gyöngy) */
+const beadMap = prayers.map(()=>null);
+let ptr = 0;
+for (let i = 0; i < prayers.length; i++) {
+  const t = prayers[i];
+  if (
+       t.startsWith("†")          //  ⬅️  keresztvetés
+    || t.startsWith("Dicsőség")   //  Dicsőség
+    || t.startsWith("Ó, Jézusom") //  Fatimai fohász
+  ) continue;                     //  → ezeknél nem léptetünk
+  beadMap[i] = playOrder[ptr++];
+}
+
+
+/* -------- Rózsafüzér rajz -------- */
 const ros = document.getElementById("rosary");
 function drawRosary() {
   ros.innerHTML = "";
-  const loop = 54, tail = 6,
-        R = ros.offsetWidth / 2 - 8,
-        gap = 80, start = 90 + gap / 2;
-  const add = (x, y, large) => {
+
+  /* --- 1. FÜGGŐLEGES RÉSZ (6 szem) --- */
+  for (let j = 0; j < 6; j++) {
     const b = document.createElement("div");
-    b.className = "bead" + (large ? " large" : "");
-    b.style.left = x + "px";
-    b.style.top  = y + "px";
+    /*  ✱ itt a változás:  j === 0  →  legalsó szem legyen nagy */
+    b.className = "bead" + (j === 0 ? " large" : "");
+    b.style.left = "50%";
+    b.style.top  = (ros.offsetHeight - 18 * (j + 1)) + "px";
+    b.style.transform = "translateX(-50%)";
     ros.appendChild(b);
-  };
-  for (let i = 0; i < loop; i++) {
-    const a = start + (360 - gap) * i / loop;
-    add(R * Math.cos(a * Math.PI / 180) + ros.offsetWidth / 2,
-        R * Math.sin(a * Math.PI / 180) + R + 8,
-        i % 11 === 0);
   }
-  const baseY = R * 2 + 8;
-  for (let j = 0; j < tail; j++)
-    add(ros.offsetWidth / 2, baseY + 18 * j, j === 0);
+
+  /* --- 2. KÖR (54 szem) --- */
+  const R   = ros.offsetWidth / 2 - 8;
+  const gap = 80, 
+  start = 90 + gap / 2;
+  const add = (x, y, large) => {
+    const d = document.createElement("div");
+    d.className = "bead" + (large ? " large" : "");
+    d.style.left = x + "px";
+    d.style.top  = y + "px";
+    ros.appendChild(d);
+  };
+  for (let i = 0; i < 54; i++) {
+    const a = start + (360 - gap) * i / 54;
+    /*  ✱ itt marad:  minden 11. szem nagy  */
+    add(
+      R * Math.cos(a * Math.PI / 180) + ros.offsetWidth / 2,
+      R * Math.sin(a * Math.PI / 180) + R + 8,
+      (54-i) % 11 === 0            // nagy szemek: 0, 11, 22, 33, 44
+    );
+  }
 }
+
+/* -------- Gyöngy-frissítés -------- */
 function updateBeads() {
-  const beads = [...ros.children],
-        done  = Math.floor(idx / prayers.length * beads.length);
-  beads.forEach((b, i) => b.classList.toggle("active", i < done));
+  const beads = [...ros.children];
+  const lit   = beadMap.slice(0, idx + 1).filter(x => x !== null);
+  beads.forEach((b, i) => b.classList.toggle("active", lit.includes(i)));
 }
-/* -------- Megjelenítés és vezérlés -------- */
-const out=document.getElementById('prayer');
-const btn=document.getElementById('modeToggle');
 
-function show(){ out.textContent = prayers[idx]; updateBeads(); }
+/* -------- Interakció -------- */
+const txt = document.getElementById("prayer");
+const btn = document.getElementById("modeToggle");
 
-document.body.addEventListener('click',e=>{
-  if(e.target!==btn){ idx = (idx+1)%prayers.length; show(); }
+function show() { txt.textContent = prayers[idx]; updateBeads(); }
+
+document.body.addEventListener("click", e => {
+  if (e.target !== btn) { idx = (idx + 1) % prayers.length; show(); }
 });
-
-btn.addEventListener('click',e=>{
+btn.addEventListener("click", e => {
   e.stopPropagation();
-  const dark = document.body.classList.toggle('dark');
+  const dark = document.body.classList.toggle("dark");
   btn.textContent = dark ? "☀️" : "🌙";
-  localStorage.setItem('dark',dark);
+  localStorage.setItem("dark", dark);
 });
+if (localStorage.getItem("dark") === "true") {
+  document.body.classList.add("dark"); btn.textContent = "☀️";
+}
 
-if(localStorage.getItem('dark')==='true') document.body.classList.add('dark');
+window.addEventListener("resize", () => { drawRosary(); updateBeads(); });
 
-window.addEventListener('resize',()=>{ drawRosary(); updateBeads(); });
-
+/* -------- Indítás -------- */
 drawRosary();
 show();
 </script>
